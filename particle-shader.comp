@@ -1,0 +1,52 @@
+#version 450
+
+// Create a structure to store the particle data in
+struct Particle {
+	vec2 position;
+	vec2 velocity;
+};
+
+// Some physics that we are interested in
+const float dt 		= 0.01;
+const float damping = 0.99;
+const vec2 	gravity	= vec2(0,-9.8);
+const vec2 	bounds 	= vec2(200.0, 50.0);
+
+// First tell the GUP that we are using one thread per workgroup
+layout (local_size_x = 1) in;
+
+// Now our shader finds a buffer at a known place that we will specify
+// in the setup and then interprets the data as a structure for velocity and whatnot
+// The std430 is simply a way to specify how the data is packed onto the memory
+layout (std430, binding = 0) buffer Particles {
+	Particle particles[];
+};
+
+// The main function
+void main() {
+	// Get the index of the current process
+	uint i = gl_GlobalInvocationID.x;
+	
+	// We will select the corresponding particle
+	vec2 pos = particles[i].position;
+	vec2 vel = particles[i].velocity;
+
+	// Update them using the stupidest Euler scheme
+	vel += gravity * dt;
+	pos += vel * dt;
+
+	// Check if you're outof bounds
+	if (pos.x <= 0 || pos.x >= bounds.x) {
+		vel.x *= -damping;
+		pos.x = clamp(pos.x, 0, bounds.x);
+	}
+
+	if (pos.y <= 0 || pos.y >= bounds.x) {
+		vel.y *= -damping;
+		pos.y = clamp(pos.y, 0, bounds.y);
+	}
+
+	// Now let's update it
+	particles[i].velocity = vel;
+	particles[i].position = pos; 
+}
