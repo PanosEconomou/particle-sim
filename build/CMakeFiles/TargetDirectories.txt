@@ -1,3 +1,0 @@
-/home/pano/projects/vulkan/particles/build/CMakeFiles/particles.dir
-/home/pano/projects/vulkan/particles/build/CMakeFiles/edit_cache.dir
-/home/pano/projects/vulkan/particles/build/CMakeFiles/rebuild_cache.dir
