@@ -6,4 +6,5 @@
 void runComputeShader(const VulkanContext& ctx,
                       const std::string& spirvPath,
                       const VulkanBuffer& buffer,
+                      const VulkanBuffer& paramsBuffer,
                       uint32_t elementCount);

@@ -109,6 +109,53 @@ VulkanBuffer createBuffer(const VulkanContext& ctx, VkDeviceSize size, void* dat
     return buf;
 }
 
+VulkanBuffer createUniformBuffer(const VulkanContext& ctx, VkDeviceSize size, void* data) {
+    VulkanBuffer buf{};
+    buf.size = size;
+
+    VkBufferCreateInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    info.size = size;
+    info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    check(vkCreateBuffer(ctx.device, &info, nullptr, &buf.buffer), "Create Uniform buffer");
+
+    VkMemoryRequirements memReq;
+    vkGetBufferMemoryRequirements(ctx.device, buf.buffer, &memReq);
+
+    VkPhysicalDeviceMemoryProperties props;
+    vkGetPhysicalDeviceMemoryProperties(ctx.physicalDevice, &props);
+
+    int index = -1;
+    for (uint32_t i=0; i < props.memoryTypeCount; i++) {
+        if ((memReq.memoryTypeBits & (1 << i)) &&
+            (props.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
+            (props.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) {
+
+                index = i;
+                break;
+        }
+    }
+
+    if (index == -1) throw std::runtime_error("No suitable memory type");
+
+    VkMemoryAllocateInfo allocInfo;
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memReq.size;
+    allocInfo.memoryTypeIndex = index;
+    check(vkAllocateMemory(ctx.device, &allocInfo, nullptr, &buf.memory), "Allocating the memory for the Uniform Buffer");
+
+    vkBindBufferMemory(ctx.device, buf.buffer, buf.memory, 0);
+
+    void* mapped;
+    vkMapMemory(ctx.device, buf.memory, 0, size, 0, &mapped);
+    memcpy(mapped, data, static_cast<size_t>(size));
+    vkUnmapMemory(ctx.device, buf.memory);
+
+    return buf;
+    
+}
+
 void readBuffer(const VulkanContext& ctx, const VulkanBuffer& buf, void* dst) {
     void* mapped;
     vkMapMemory(ctx.device, buf.memory, 0, buf.size, 0, &mapped);

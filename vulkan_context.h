@@ -27,6 +27,7 @@ struct VulkanBuffer {
 
 VulkanContext initVulkan();
 VulkanBuffer createBuffer(const VulkanContext&, VkDeviceSize, void* data);
+VulkanBuffer createUniformBuffer(const VulkanContext&, VkDeviceSize, void* data);
 void readBuffer(const VulkanContext&, const VulkanBuffer&, void* dst);
 void cleanupVulkan(VulkanContext&);
 void destroyBuffer(const VulkanContext&, VulkanBuffer);

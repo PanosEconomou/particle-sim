@@ -6,11 +6,17 @@ struct Particle {
 	vec2 velocity;
 };
 
+// struct Param {
+// 	uint num_particles;
+// 	vec2 bounds;
+// };
+
 // Some physics that we are interested in
 const float dt 		= 0.01;
-const float damping = 0.99;
+const float damping = 0.5;
 const vec2 	gravity	= vec2(0,-9.8);
-const vec2 	bounds 	= vec2(200.0, 50.0);
+const float mass 	= 5.0;
+const float radius 	= 1.0;
 
 // First tell the GUP that we are using one thread per workgroup
 layout (local_size_x = 1) in;
@@ -20,6 +26,13 @@ layout (local_size_x = 1) in;
 // The std430 is simply a way to specify how the data is packed onto the memory
 layout (std430, binding = 0) buffer Particles {
 	Particle particles[];
+};
+
+// Obtain the number of particles and the bouds
+layout(set = 0, binding = 1, std140) uniform Params {
+	uint num_particles;
+	float pad;
+	vec2 bounds;
 };
 
 // The main function
@@ -32,18 +45,26 @@ void main() {
 	vec2 vel = particles[i].velocity;
 
 	// Update them using the stupidest Euler scheme
-	vel += gravity * dt;
+	for (uint j = 0; j < num_particles; j++) {
+		if(j == i) continue;
+
+		vec2 dist = pos - particles[j].position;
+		float mag = clamp(length(dist),radius,10000.0);
+
+		vel -= mass * dist / (mag*mag*mag) * dt;
+	}
+	// vel += gravity * dt;
 	pos += vel * dt;
 
-	// Check if you're outof bounds
-	if (pos.x <= 0 || pos.x >= bounds.x) {
+	// Check if you're out of bounds
+	if (pos.x < 0 || pos.x > bounds.x) {
 		vel.x *= -damping;
-		pos.x = clamp(pos.x, 0, bounds.x);
+		pos.x = clamp(pos.x, 0.0, bounds.x);
 	}
 
-	if (pos.y <= 0 || pos.y >= bounds.x) {
+	if (pos.y < 0 || pos.y > bounds.y) {
 		vel.y *= -damping;
-		pos.y = clamp(pos.y, 0, bounds.y);
+		pos.y = clamp(pos.y, 0.0, bounds.y);
 	}
 
 	// Now let's update it
