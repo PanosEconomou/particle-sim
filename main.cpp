@@ -51,9 +51,9 @@ int main() {
 	
 	// Initialize the Particles 
 	Param params;
-	params.num_particles 	= 300;
-	params.bounds[0] 		= 200.0f;
-	params.bounds[1] 		= 112.0f;
+	params.num_particles 	= 1000;
+	params.bounds[0] 		= 231.0f;
+	params.bounds[1] 		= 144.0f;
 	params.pad 				= 0.0f;
 	std::vector<Particle> particles(params.num_particles);
 	srand(time(0));
@@ -75,10 +75,10 @@ int main() {
 		runComputeShader(ctx, "particle-shader.spv", buf, params_buf, params.num_particles);
 		readBuffer(ctx, buf, particles.data());
 
-		printParticlesTerminal(particles, 212,56);
+		printParticlesTerminal(particles, 231,72);
 			
 		// Sleep a little so that i don't burn my computer
-		std::this_thread::sleep_for(std::chrono::microseconds(100));
+		// std::this_thread::sleep_for(std::chrono::microseconds(100));
 	}
 
     destroyBuffer(ctx, params_buf);
