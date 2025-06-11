@@ -51,7 +51,7 @@ int main() {
 	
 	// Initialize the Particles 
 	Param params;
-	params.num_particles 	= 1000;
+	params.num_particles 	= 5000;
 	params.bounds[0] 		= 231.0f;
 	params.bounds[1] 		= 144.0f;
 	params.pad 				= 0.0f;
@@ -78,7 +78,7 @@ int main() {
 		printParticlesTerminal(particles, 231,72);
 			
 		// Sleep a little so that i don't burn my computer
-		// std::this_thread::sleep_for(std::chrono::microseconds(100));
+		std::this_thread::sleep_for(std::chrono::microseconds(100));
 	}
 
     destroyBuffer(ctx, params_buf);
