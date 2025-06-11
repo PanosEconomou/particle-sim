@@ -13,7 +13,7 @@ struct Particle {
 
 // Some physics that we are interested in
 const float dt 		= 0.01;
-const float damping = 0.5;
+const float damping = 0.1;
 const vec2 	gravity	= vec2(0,-9.8);
 const float mass 	= 5.0;
 const float radius 	= 1.0;
